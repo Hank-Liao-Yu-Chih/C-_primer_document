@@ -344,3 +344,181 @@ int main()
 }
 ```
 
+## 3.3程式庫的vector型別
+
+#### Note:vector是一個模板，而非一個型別。從vector產生的型別必須包含元素型別，例如vector<int>
+
+### 3.3.1定義並初始化vector
+
+```c++
+#include <iostream>
+#include <vector>
+using namespcae::std;
+int main()
+{
+	vector<int> ivec;				// 一開始是空
+    vector<int> ivec2(ivec);		// 將ivec的元素拷貝到ivec2
+    vector<int> ivec3 = ivec;		// 將ivec的元素拷貝到ivec2
+    vetcor<string> svec(ivec2);		// 錯誤:sevc存有的是string，而非int
+    return 0;
+}
+```
+
+#### vector的串列初始化/創建特定數目的元素/值初始化
+
+```c++
+#include <iostream>
+#include <vector>
+using namespcae::std;
+int main()
+{
+    vector<string> v1{"a", "an", "the"}; 	// 串列初始化
+    vetcor<string> v2("a", "an", "the"); 	// 錯誤 (不能用括號)
+    vector<int> ivec(10,-1);				// 10個int元素，每個都被初始化為-1
+    vector<string> svec(10, "hi");			// 10個string，每個元素都是"hi"
+    vector<int> ivec(10);					// 10個int元素，每個都被初始化為0
+    vector<string> svec(10, "hi");			// 10個string元素，每個都是"hi"
+    return 0;
+}
+```
+
+#### 串列出初始器還是元素計數器
+
+```c++
+#include <iostream>
+#include <vector>
+using namespcae::std;
+int main()
+{
+	vector<int> v1(10);			// v1有10個值為0的元素
+    vector<int> v2(10);			// v2有1個值為10的元素
+    vector<int> v3(10, 1);		// v3有10個值為1的元素
+    vector<int> v4{10, 1};		// v4有2個值分別為10與1的元素
+    vector<string> v5{"hi"};	// 串列初始化:v5有一個元素
+    vector<string> v6("hi");	// 錯誤:無法以一個字串字面值建構一個vector
+    vector<string> v7{10};		// v7有10個預設初始化的元素
+    vector<string> v8{10, "hi"};// v8有10個值為"hi"的元素	
+
+    return 0;
+}
+```
+
+### 3.3.2新增元素到一個vector
+
+```c++
+#include <iostream>
+#include <vector>
+using namespcae::std;
+int main()
+{
+	vector<int> v2;	//空的vector
+    for (int i = 0; i != 100; ++i)
+        v2.push_back(i); //將循序的整數附加到v2
+    return 0;
+}
+```
+
+#### 關鍵概念:vector能夠有效率地增長:
+
+##### 因為vector能夠有效率地增長，定義特定大小的vector經常是不必要，也會導致不好的效能
+
+#### WARNING:一個範圍for的主體必不能改變它所迭代的序列大小
+
+### 3.3.3其他的vector運算
+
+```c++
+#include <iostream>
+#include <vector>
+using namespcae::std;
+int main()
+{
+	vector<int> v{1,2,3,4,5,6,7,8,9};
+    for (auto &i : v)
+        i *= i;
+    for (auto i : v)
+        cout << i << " ";
+    cout << endl;
+    return 0;
+}
+```
+
+#### Note:vector要使用size_type，我們必須指出它是哪個型別中所定義的。
+
+```c++
+vector<int>::size_type // ok
+vector::size_type // 錯誤，沒有明確指定型別
+```
+
+#### vector的運算
+
+```c++
+v.empty();			// 如果v是空的，救回傳true:否則就回傳false
+v.size();			// 回傳v中的元素數目
+v.push_back(t);		// 將帶有值v的一個元素加到v的尾端
+v[n];				// 回傳v中處於位置n的元素的一個參考
+v1 = v2;			// 以v2中的元素之拷貝取代v1中的元素
+v1 = {a, b, c};		// 以逗號分隔的串列中的元素之拷貝取代v1的元素		
+v1 == v2;			// 如果它們有相同的元素數目且每一個元素都是相等，則v1與v2相等
+v1 != v2;
+```
+
+#### 計算一個vector的索引
+
+```c++
+#include <iostream>
+#include <vector>
+using namespcae::std;
+int main()
+{
+	vector<unsigned> scores(11, 0);
+    unsigned grade;
+    while(cin >> grade) {
+        if (grade <= 100)
+            ++scores[grade/10]; //為目前的欉集遞增計數器
+    }
+    return 0;
+}
+```
+
+#### 下標並不會增加元素
+
+不好的寫法:
+
+```c++
+#include <iostream>
+#include <vector>
+using namespcae::std;
+int main()
+{
+    vector<int> ivec;		// 空的vector
+    for (decltype(ivec.size()) ix = 0; ix != 10; ++ix)
+        ivec[ix] = ix;	// 災難:ivec沒有元素
+    return 0;
+}
+```
+
+好的寫法:
+
+```c++
+#include <iostream>
+#include <vector>
+using namespcae::std;
+int main()
+{
+    vector<int> ivec;		// 空的vector
+    for (decltype(ivec.size()) ix = 0; ix != 10; ++ix)
+        ivec.push_back(ix); // ok:新增了一個值為ix的元素
+    return 0;
+}
+```
+
+#### 注意:下標運算只會擷取已知存在的元素
+
+```c++
+vector<int> ivec;			// 空的 vector
+cout << ivec[0];			// 錯誤:ivec沒有元素
+
+vector<int> ivec2(10)		// 帶有10個元素的vector
+cout << ivec2[10];			// 錯誤:ivec2有元素0,...,9
+```
+
