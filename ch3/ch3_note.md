@@ -522,3 +522,109 @@ vector<int> ivec2(10)		// 帶有10個元素的vector
 cout << ivec2[10];			// 錯誤:ivec2有元素0,...,9
 ```
 
+# 3.4迭代器簡介
+
+## 3.4.1使用迭代器
+
+```c++
+// b代表第一個元素(類似指標的概念)，而e代表超出v中最後一個元素一個位置的位置(類似指標的概念)。
+auto b = v.begin(), e = v.end();
+```
+
+```c++
+#include <iostream>
+#include <vector>
+#include <string>
+using namespcae::std;
+int main()
+{
+    string s("some string");
+    if (s.begin() != s.end()) {	// 確定s不是空的
+        auto it = s.begin();	// 它代表s中的第一個字元
+    	*it = toupper(*it);     // 將那一字元變成大寫
+    }
+    return 0;
+}
+```
+
+### 標準容器迭代器的運算
+
+```c++
+*iter				// 回傳迭代器iter所代表的元素的一個參考
+iter->mem			// 類似 (*iter).mem
+++iter				// 遞增iter來參考容器中的下一個元素
+--iter				// 遞減iter來參考容器中的前一個元素
+```
+
+#### Note:如果容器是空的，begin所回傳的迭代器和end回傳的迭代器就相等，它們都是off-the-end迭代器。
+
+#### Note:因為end所回傳的迭代器並不代表任何元素，它不能被遞增或解參考。
+
+### 迭代器型別
+
+```c++
+vector<int>::iterator it;			// it可以讀寫vector<int>元素
+string::iterator it2;				// it2可以讀寫一個string中的字元
+vector<int>::const_iterator it3;	// it3可以讀取但不能寫入元素
+string::const_iterator it3;			// it4可以讀取但不能寫入字元
+```
+
+### begin和end運算
+
+```c++
+vector<int> v;
+const vector<int> cv;
+auto it1 = v.begin();			// it1有型別vector<int>::iterator
+auto it2 = cv.begin();			// it2 h 有型別vector<int>::const_iterator
+auto it3 = v.cbegin();			// it3有型別vector<int>::const_iterator
+```
+
+### 用迭代器檢查是否"空白"的方法
+
+```C++
+(*it).empty()		// OK
+ *it.empty()		// error
+ it->empty()		// OK
+```
+
+```c++
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespcae::std;
+int main()
+{
+    vector<string> text{"Hello", "", "word"};
+    // 印出text中的每一行，直到第一個空白行為止
+    for (auto it = text.cbegin(); it != text.cend() && !it->empty(); ++it)
+        cout << *it << endl;
+    return 0;
+}
+```
+
+## 3.4.2迭代器的算術運算
+
+### vector和string迭代器所支援的運算
+
+```C++
+iter + n
+iter - n
+iter += n
+iter -= n
+```
+
+```c++
+// text 必須排序過
+// beg與end將會代表我們正在搜尋的範圍
+auto beg = text.begin(), end = text.end();
+auto mid = text.begin() + (end - beg)/2;
+while (mid != end && *mid != sought) {
+    if (sought < *mid)
+        end = mid;
+    else
+        beg = mid + 1;
+    mid = beg + (end - beg)/2;		//新的中點
+}
+```
+
