@@ -628,3 +628,131 @@ while (mid != end && *mid != sought) {
 }
 ```
 
+# 3.5陣列
+
+陣列是類似程式庫vector型別，但是在效能和彈性之間提供了不同的取捨
+
+## 3.5.1定義並初始化內建的陣列
+
+```c++
+unsigned cnt = 42;			// 不是一個常數運算式
+constexpr unsigned sz = 42;	// 常數運算式
+
+int arr[10];				// 10個int的陣列
+int *parr[sz];				// 由對int的42個指標組成的陣列
+string bad[cnt];			// 錯誤:cnt不是一個常數運算式
+string strs[get_size()];	// 如果get_size是constexpr就ok，否則錯誤
+```
+
+### 明確地初始化陣列元素
+
+```c++
+const unsigned sz = 3;		
+int ia[sz] = {0, 1, 2};			// 三個int的陣列，值分別為0,1,2
+int a2[] = {0, 1, 2};			// 尺寸為3的陣列
+int a3[5] = {0, 1, 2};			// 等同於a3[] = {0, 1, 2, 0, 0}
+string a4[3] = {"hi", "bye"};	// 等同於a4 = {"hi", "bye", ""}
+const char a5[2] = {0,1,2};		// 錯誤:太多的初始器
+```
+
+### 字元陣列
+
+```c++
+char a1[] = {'c', '+', '+'};		// 串列初始化，沒有null
+char a2[] = {'c', '+', '+', '\0'};	// 串列初始化，明確的null
+char a3[] = "c++";					// 自動加上null		
+const char a4[6] = "Daniel";		// 錯誤:null沒有空間放
+```
+
+## 3.5.3指標
+
+```c++
+string nums[] = {"one", "two", "three"};	// string所成的陣列
+string *p = &nums[0];						// p指向nums中的第一個元素
+string *p2 = nums;							// 等同於p2 = &nums[0]
+int ia[] = {0,1,2,3,4,5,6,7,8,9};			// ia是有10個int的一陣列
+auto ia2(ia);								// ia2是一個int *，指向ia中的第一個元素
+ia2 = 42;									// 錯誤:ia2是一個指標，而我們無法指定一個int給一個指													  標
+// ia3是有10個int的一個陣列
+decltype(ia) ia3 = {0,1,2,3,4,5,6,7,8,9};
+ia3 = p;									// 錯誤:無法指定一個int*，到一個陣列
+ia3[4] = i;									// ok:指定i的值到ia3中的一個元素
+
+```
+
+### 指標是迭代器
+
+```c++
+int arr[] = {0,1,2,3,4,5,6,7,8,9};
+int *p = arr;								// p指向arr中的第一個元素
+++p;										// p指向arr[1]
+int *e = &arr[10];							// error:超過arr最後一個元素的位置指標
+for (int *b = arr; b != e; ++b)
+    cout << *b << endl;						// 印出arr中的元素
+```
+
+### 利用程式庫begin和end的函式
+
+```C++
+int ia[] = {0,1,2,3,4,5,6,7,8,9};			// ia是有10個int的一個陣列
+int *beg = begin(ia);						// 指向ia中的第一個元素的指標
+int *last = end(ia);						// 超出ia中最後一個元素一個位置的指標
+
+int *pbeg = begin(arr), *pend = end(arr);
+// 找出第一個負的元素，如果已經查看過所有的元素，就停止
+while(pbeg != pend && *pbeg >= 0)
+    ++pbeg;
+```
+
+### 指標算數
+
+```c++
+constexpr size_t sz = 5;
+int arr[sz] = {1,2,3,4,5};
+int *ip = arr;								// 等同於int *ip  = &arr[0]
+int *ip2 = ip + 4;							// ip2指向arr[4]，即arr中的最後一個元素
+int *p = arr + sz;							// 小心使用 --不要解參考
+int *p2 = arr + 10;							// 錯誤:arr只有5元素;p2有未定義的值
+```
+
+```c++
+auto n = end(arr) - begin(arr);				// n為5，即arr中元素的數目
+
+int *b = arr, *e = arr + sz;
+while(b < e)
+    //使用 *b
+    ++b;
+```
+
+### 使用一個陣列來初始化一個vector
+
+我們無法以另一個陣列來初始化一個內建陣列，也無法以一個vector初始化一個陣列。但可以用一個陣列來初始化一個vector
+
+```c++
+int int_arr[] = {0,1,2,3,4,5};
+// ivec有6個元素，每個都是int_arr中對應元素的一個拷貝
+vector<int> ivec(begin(int_arr), end(int_arr));
+// 拷貝三個元素:int_arr[1], int_arr[2], int_arr[3]
+vector<int> subvec(int_arr + 1, int_arr + 4);
+```
+
+# 3.6 多維陣列
+
+C++並沒有多維度陣列，所位被稱為多維陣列的東西，實際上是由陣列所構成的陣列。
+
+### 初始化一個多維陣列的元素
+
+```c++
+int ia[3][4] = {		// 三個元素，每個元素都是大小為4的一個陣列
+    {0,1,2,3},			// 由0索引的列之初始器
+    {4,5,6,7},			// 由1索引的列之初始器
+    {8,9,10,11},		// 由2索引的列之初始器
+}
+
+// 等效的初始化，沒有每一列的選擇性大括號
+int ia[3][4] = {0,1,2,3,4,5,6,7,8,9,10,11};
+
+//只明確地初始化每列第一個元素
+int ia[3][4] = {{0}, {4}, {8}};
+```
+
